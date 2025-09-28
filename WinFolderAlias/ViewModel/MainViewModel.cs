@@ -7,10 +7,7 @@ namespace WinFolderAlias
         public MainViewModel()
         {
             _textBoxModel = new();
-            _buttonModel = new()
-            {
-                Folder = _folder
-            };
+            _buttonModel = new();
         }
 
         private Folder? _folder;
@@ -23,13 +20,13 @@ namespace WinFolderAlias
             get => _folder;
             set
             {
-                if (_folder != value)
+                if (value != null && _folder != value)
                 {
                     _folder = value;
 
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Folder)));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(_buttonModel.ButtonText)));
-                    TextBoxModel.AliasText = _folder?.Alias ?? "";
+                    ButtonModel.ButtonText = value.Name;
+                    TextBoxModel.AliasText = value.Alias ?? "";
                 }
             }
         }
@@ -42,25 +39,30 @@ namespace WinFolderAlias
 
     public class ButtonModel : INotifyPropertyChanged
     {
-        private Folder? _folder;
-
         #region UI元素属性
-        private const string _buttonText = "点击选择或拖拽文件夹到此处";
+        private const string _defaultButtonText = "点击选择或拖拽文件夹到此处";
         #endregion
+
+        private string _buttonText = String.Empty;
+
         public string ButtonText
         {
             get
             {
                 // 先判断folder是否为null
-                if (Folder == null || string.IsNullOrEmpty(Folder.Name))
+                if (string.IsNullOrEmpty(_buttonText))
                 {
-                    return _buttonText;
+                    return _defaultButtonText;
                 }
-                return Folder.Name;
+                return _buttonText;
+            }
+            set
+            {
+                _buttonText = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonText)));
             }
         }
 
-        public Folder? Folder { get => _folder; set => _folder = value; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }
@@ -69,11 +71,11 @@ namespace WinFolderAlias
     {
         private const string _defaultAliasText = "输入别名";
         private const string _defaultAliasTextColor = "#909090";
-        private const string _AliasTextColor = "#000000";
+        private const string _activeAliasTextColor = "#000000";
 
         // UI显示的暂存别名文本
         private string _aliasText = "";
-        private string _aliasTextColor = _AliasTextColor;
+        private string _aliasTextColor = _activeAliasTextColor;
         private bool _isAliasTextBoxDefault = true;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -89,7 +91,7 @@ namespace WinFolderAlias
                     return _defaultAliasText;
                 }
                 _isAliasTextBoxDefault = false;
-                AliasTextColor = _AliasTextColor;
+                AliasTextColor = _activeAliasTextColor;
                 return _aliasText;
             }
             set

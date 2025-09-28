@@ -34,7 +34,12 @@ namespace WinFolderAlias
         public string Name
         {
             // 从path中获取文件名
-            get => System.IO.Path.GetFileName(_path);
+            get
+            {
+                var _name = System.IO.Path.GetFileName(_path);
+                // 将_name中的下划线替换成双下划线；
+                return _name.Replace("_", "__");
+            }
         }
 
         // 文件夹别名
